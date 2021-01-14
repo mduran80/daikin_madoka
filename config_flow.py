@@ -76,17 +76,12 @@ class FlowHandler(config_entries.ConfigFlow, domain="daikin_madoka"):
 
         """Check the adapter configuration using hcitool.
         """
-
-        _LOGGER.debug(f"Checking adapter {adapter}")
-        process = await asyncio.create_subprocess_exec(
-            "hcitool","-i",adapter, 
-            stdout=asyncio.subprocess.PIPE, 
-            stderr=asyncio.subprocess.PIPE
-            )
-        # Wait for the subprocess to finish
-        await process.communicate()
-        # Progress
-        return process.returncode == 0
+        try:
+            await discover_devices(timeout = 1, 
+                                  adapter = adapter)
+            return True
+        except Exception as e:
+            return False 
 
 
     async def async_step_user(self, user_input=None):
