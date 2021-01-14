@@ -1,0 +1,25 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Configure Daikin Madoka",
+        "description": "Introduzca las direcciones MAC de los termostatos BRC1H. Asegurese de haberlos emparejado previamente con esta instancia ya que requiere intervenci\u00f3n humana:\n\n1. Olvidar conexi\u00f3n bluetooth en BRC1H\n2. Ejecutar 'bluetoothctl scan on'\n3. 'bluetoochctl scan off'\n4. 'bluetoothctl pair [BRC1H MAC]'\n5. Confirmar\n6. Confirmar emparejamiento en BRC1H",
+        "data": {
+          "force_update": "Forzar desconexi\u00f3n del dispositivo BRC1H antes de conectar (recomendado)",
+          "devices": "Lista separada por ',' de direcciones MAC de los dispositivos BRC1H\n",
+          "device": "Nombre del adaptador Bluetooth local. Ejecute 'hcitool' en un terminal para encontrarlo.",
+          "scan_interval": "Tiempo (segs) para busqueda de dispositivios Bluetooth",
+          "discovery": "Intentar descubrir los dispositivos (no deben estar asociados a un teléfono)"
+        }
+      }
+    },
+    "abort": {
+     
+    },
+    "error": {
+      "device_not_found": "El dispositivo no se encuentra",
+      "not_a_mac": "No son direcciones MAC válidas (11:22:33:44:55:66)",
+      "cannot_connect": "No se ha podido conectar con el adaptador"
+    }
+  }
+}
