@@ -2,6 +2,10 @@
 
 This is a custom component developed to support Daikin Madoka BRC1H thermostats in Home Assistant. 
 
+![](images/madoka.png)
+
+![](images/integration.png)  ![](images/climate.png) ![](images/entities.png) 
+
 ## Installation
 
 Download folder and copy under "custom_components" folder in the Home Assistant configuration folder.
