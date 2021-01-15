@@ -57,12 +57,13 @@ class MadokaSensor(Entity):
     @property
     def unique_id(self):
         """Return a unique ID."""
-        return f"{self.controller.connection.address}-{ATTR_INSIDE_TEMPERATURE}"
+        return self.controller.connection.address
 
     @property
     def name(self):
-        """Return the name of the sensor."""
-        return f"{self.controller.connection.address} {ATTR_INSIDE_TEMPERATURE}"
+        """Return the name of the thermostat, if any."""
+        return self.controller.connection.name if self.controller.connection.name is not None else self.controller.connection.address
+
 
     @property
     def state(self):
