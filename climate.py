@@ -211,7 +211,7 @@ class DaikinMadokaClimate(ClimateEntity):
     async def async_set_temperature(self, **kwargs):
         """Set new target temperature."""
         try:
-            logging.debug(f"Setting temperature of device {self.name}")
+            _LOGGER.debug(f"Setting temperature of device {self.name}")
             new_cooling_set_point = self.controller.set_point.status.cooling_set_point
             new_heating_set_point = self.controller.set_point.status.cooling_set_point
             if (self.controller.operation_mode.status.operation_mode != OperationModeEnum.HEAT):
@@ -223,7 +223,7 @@ class DaikinMadokaClimate(ClimateEntity):
                 SetPointStatus(new_cooling_set_point,new_heating_set_point)
             )
         except ConnectionAbortedError:
-             logging.info(f"Could not set target temperature on {self.name}. Connection not available, please reload integration to try reenabling.")
+             _LOGGER.info(f"Could not set target temperature on {self.name}. Connection not available, please reload integration to try reenabling.")
         except ConnectionException:
             pass
 
@@ -234,7 +234,7 @@ class DaikinMadokaClimate(ClimateEntity):
         if  self.controller.power_state.status.turn_on  == False:
             return HVAC_MODE_OFF
 
-        logging.debug(f"Getting operation mode of device {self.name}")
+        _LOGGER.debug(f"Getting operation mode of device {self.name}")
         return DAIKIN_TO_HA_MODE.get(
                 self.controller.operation_mode.status.operation_mode
             )
@@ -264,7 +264,7 @@ class DaikinMadokaClimate(ClimateEntity):
     async def async_set_hvac_mode(self, hvac_mode):
         """Set HVAC mode."""
         try:
-                logging.debug(f"Setting operation mode of device {self.name}")
+                _LOGGER.debug(f"Setting operation mode of device {self.name}")
                 await self.controller.operation_mode.update(
                     OperationModeStatus(HA_MODE_TO_DAIKIN.get(hvac_mode))
                         )
@@ -273,7 +273,7 @@ class DaikinMadokaClimate(ClimateEntity):
 
                 self.async_schedule_update_ha_state()
         except ConnectionAbortedError:
-             logging.info(f"Could not set HVAC mode on {self.name}. Connection not available, please reload integration to try reenabling.")
+             _LOGGER.info(f"Could not set HVAC mode on {self.name}. Connection not available, please reload integration to try reenabling.")
         except ConnectionException:
             pass
 
@@ -285,12 +285,12 @@ class DaikinMadokaClimate(ClimateEntity):
             return FAN_OFF
 
         if self.hvac_mode == HVAC_MODE_HEAT:
-            logging.debug(f"Getting heating fan speed of device {self.name}")
+            _LOGGER.debug(f"Getting heating fan speed of device {self.name}")
             return DAIKIN_TO_HA_FAN_MODE.get(
                 self.controller.fan_speed.status.heating_fan_speed
             )
         else:
-            logging.debug(f"Getting cooling fan speed of device {self.name}")
+            _LOGGER.debug(f"Getting cooling fan speed of device {self.name}")
             return DAIKIN_TO_HA_FAN_MODE.get(
                 self.controller.fan_speed.status.cooling_fan_speed
             )
@@ -298,14 +298,14 @@ class DaikinMadokaClimate(ClimateEntity):
     async def async_set_fan_mode(self, fan_mode):
         """Set fan mode."""
         try:
-            logging.debug(f"Setting fan speed of device {self.name}")
+            _LOGGER.debug(f"Setting fan speed of device {self.name}")
             await self.controller.fan_speed.update(
                 FanSpeedStatus(
                     HA_FAN_MODE_TO_DAIKIN.get(fan_mode), HA_FAN_MODE_TO_DAIKIN.get(fan_mode)
                 )
             )
         except ConnectionAbortedError:
-            logging.info(f"Could not set fan mode on {self.name}. Connection not available, please reload integration to try reenabling.")
+            _LOGGER.info(f"Could not set fan mode on {self.name}. Connection not available, please reload integration to try reenabling.")
         except ConnectionException:
             pass
 
@@ -318,32 +318,32 @@ class DaikinMadokaClimate(ClimateEntity):
         """Retrieve latest state."""
 
         try:
-            logging.debug(f"Updating device status for {self.name}")
+            _LOGGER.debug(f"Updating device status for {self.name}")
             await self.controller.read_info()
             await self.controller.update()
 
         except ConnectionAbortedError:
-            logging.info(f"Could not update device status for {self.name}. Connection not available, please reload integration to try reenabling.")
+            _LOGGER.info(f"Could not update device status for {self.name}. Connection not available, please reload integration to try reenabling.")
         except ConnectionException:
             pass
 
     async def async_turn_on(self):
         """Turn device on."""
         try:
-            logging.debug(f"Turning ON device {self.name}")
+            _LOGGER.debug(f"Turning ON device {self.name}")
             await self.controller.power_state.update(PowerStateStatus(True))
         except ConnectionAbortedError:
-            logging.info(f"Could not turn on {self.name}. Connection not available, please reload integration to try reenabling.")
+            _LOGGER.info(f"Could not turn on {self.name}. Connection not available, please reload integration to try reenabling.")
         except ConnectionException:
             pass
 
     async def async_turn_off(self):
         """Turn device off."""
         try:
-            logging.debug(f"Turning OFF device {self.name}")
+            _LOGGER.debug(f"Turning OFF device {self.name}")
             await self.controller.power_state.update(PowerStateStatus(False))
         except ConnectionAbortedError:
-            logging.info(f"Could not turn off {self.name}. Connection not available, please reload integration to try reenabling.")
+            _LOGGER.info(f"Could not turn off {self.name}. Connection not available, please reload integration to try reenabling.")
         except ConnectionException:
             pass
     @property
