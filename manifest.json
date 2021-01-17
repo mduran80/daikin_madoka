@@ -3,6 +3,6 @@
   "name": "Daikin Madoka",
   "config_flow": true,
   "documentation": "https://www.home-assistant.io/integrations/daikin",
-  "requirements": ["pymadoka==0.2.0"],
+  "requirements": ["pymadoka==0.2.1"],
   "codeowners": ["@mduran80"]
 }

@@ -38,18 +38,25 @@ The integration will scan for the devices and will create the thermostat and the
 
 * **The integration form shows an error "The device could not be found" next to the adapter field but "hcitool dev" lists the device" **
 
-This could be a problem related to the configuration of the DBUS service. Make sure DBUS is installed in the host.
+This could be a problem related to the configuration of the DBUS service. Make sure DBUS is installed in the host (it generally is) and that it is available to your homeassistant docker.
 
-You can test it using *bleak* CLI tool *bleak-scan*.
+You can test it using *bleak* CLI tool *bleak-lescan* inside your instance. Follow these steps:
+
+```
+$ docker exec -ti <homeassistant_container_id> /bin/bash
+$ bleak-lescan -i <adapter>
+```
+
+If the following error appears, DBUS is not available to the docker instance.
 ```
 File "/usr/local/lib/python3.8/site-packages/bleak/backends/bluezdbus/scanner.py", line 90, in start
     self._bus = await client.connect(self._reactor, "system").asFuture(loop)
 twisted.internet.error.ConnectError: An error occurred while connecting: Failed to connect to any bus address. Last error: An error occurred while connecting: 2: No such file or directory..
 “Failed to connect to any bus address”
 ```
-To make DBus being available in docker you have to link /var/run/dbus/system_bus_socket inside the container and also run docker in privileged mode. I don’t like the latter as homeassistant is a complex system.
+To make DBus available you have to link /var/run/dbus/system_bus_socket inside the container and also run docker in privileged mode. 
 
-Modify your dockerfile:
+Modify your docker-compose.yml:
 ```
 volumes:
   - /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket
