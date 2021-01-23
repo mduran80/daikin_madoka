@@ -1,4 +1,6 @@
 """Support for Daikin AC sensors."""
+import logging
+
 from homeassistant.const import (
     CONF_DEVICE_CLASS,
     CONF_ICON,
