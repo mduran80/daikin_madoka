@@ -21,6 +21,7 @@ from .const import (
 from pymadoka import Controller
 from pymadoka.feature import ConnectionException, ConnectionStatus
 
+_LOGGER = logging.getLogger(__name__)
 
 async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
     """Old way of setting up the Daikin sensors.
@@ -49,7 +50,7 @@ class MadokaSensor(Entity):
             CONF_UNIT_OF_MEASUREMENT: TEMP_CELSIUS,
         }
 
-    @property   
+    @property
     def available(self):
         """Return the availability."""
         return self.controller.connection.connection_status is ConnectionStatus.CONNECTED
@@ -90,6 +91,7 @@ class MadokaSensor(Entity):
     async def async_update(self):
         """Retrieve latest state."""
         try:
+            _LOGGER.debug(f"Getting temperature of device {self.name}")
             await self.controller.temperatures.query()
         except ConnectionAbortedError:
             pass

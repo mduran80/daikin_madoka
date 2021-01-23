@@ -259,6 +259,7 @@ class DaikinMadokaClimate(ClimateEntity):
             else:
                 return CURRENT_HVAC_COOL
         else:
+            _LOGGER.debug(f"Getting operation mode of device {self.name}")
             return DAIKIN_TO_HA_MODE.get(self.controller.operation_mode.status.operation_mode)
 
     async def async_set_hvac_mode(self, hvac_mode):
