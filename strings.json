@@ -4,9 +4,9 @@
          
       },
       "error": {
-          "device_not_found": "Failed to connect",
-          "not_a_mac": "Invalid authentication",
-          "cannot_connect": "Failed to connect to Bluetooth adapter"
+        "cannot_connect": "Failed to connect to Bluetooth adapter",
+        "device_not_found": "Failed to connect to thermostat",
+        "not_a_mac": "Wrong MAC address format (11:22:33:44:55:66)"        
       },
       "step": {
           "user": {

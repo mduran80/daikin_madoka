@@ -48,7 +48,7 @@ class MadokaSensor(Entity):
             CONF_TYPE: SENSOR_TYPE_TEMPERATURE,
             CONF_UNIT_OF_MEASUREMENT: TEMP_CELSIUS,
         }
-
+ 
     @property   
     def available(self):
         """Return the availability."""
