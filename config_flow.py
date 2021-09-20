@@ -131,11 +131,4 @@ class FlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                 step_id="user", data_schema=self.schema, errors=errors
             )
 
-    async def async_step_import(self, user_input):
-        """Import a config entry."""
-        return await self._create_entry(
-            user_input[CONF_DEVICES],
-            user_input.get(CONF_SCAN_INTERVAL),
-            user_input.get(CONF_FORCE_UPDATE),
-            user_input.get(CONF_DEVICE),
-        )
+   

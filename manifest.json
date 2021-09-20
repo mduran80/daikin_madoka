@@ -4,5 +4,7 @@
   "config_flow": true,
   "documentation": "https://www.home-assistant.io/integrations/daikin",
   "requirements": ["pymadoka==0.2.4"],
-  "codeowners": ["@mduran80"]
+  "codeowners": ["@mduran80"],
+  "iot_class": "local_polling",
+  "version" : "1.0.0"
 }
