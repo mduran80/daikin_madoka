@@ -3,7 +3,7 @@
   "name": "Daikin Madoka",
   "config_flow": true,
   "documentation": "https://www.home-assistant.io/integrations/daikin",
-  "requirements": ["pymadoka==0.2.8"],
+  "requirements": ["pymadoka==0.2.10"],
   "codeowners": ["@mduran80"],
   "iot_class": "local_polling",
   "version" : "1.0.0"
