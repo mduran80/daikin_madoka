@@ -69,7 +69,7 @@ async def async_setup_entry(hass: HomeAssistantType, entry: ConfigEntry):
 
     for device, controller in controllers.items():
         try:
-            await controller.start()
+            await asyncio.wait_for(controller.start(),timeout=10)
         except ConnectionAbortedError as connection_aborted_error:
             _LOGGER.error(
                 "Could not connect to device %s: %s",
