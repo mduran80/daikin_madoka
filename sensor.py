@@ -1,19 +1,18 @@
 """Support for Daikin AC sensors."""
 from homeassistant.const import (
-    CONF_DEVICE_CLASS,
-    CONF_ICON,
-    CONF_NAME,
     CONF_TYPE,
     CONF_UNIT_OF_MEASUREMENT,
-    TEMP_CELSIUS,
-    DEVICE_CLASS_TEMPERATURE,
+    UnitOfTemperature
 )
+
+from homeassistant.components.sensor import (
+    SensorDeviceClass
+)
+
 from homeassistant.helpers.entity import Entity
 
 from . import DOMAIN
 from .const import (
-    ATTR_INSIDE_TEMPERATURE,
-    ATTR_OUTSIDE_TEMPERATURE,
     SENSOR_TYPE_TEMPERATURE,
     CONTROLLERS,
 )
@@ -46,7 +45,7 @@ class MadokaSensor(Entity):
         self.controller = controller
         self._sensor = {
             CONF_TYPE: SENSOR_TYPE_TEMPERATURE,
-            CONF_UNIT_OF_MEASUREMENT: TEMP_CELSIUS,
+            CONF_UNIT_OF_MEASUREMENT: UnitOfTemperature.CELSIUS,
         }
  
     @property   
@@ -75,7 +74,7 @@ class MadokaSensor(Entity):
     @property
     def device_class(self):
         """Return the class of this device."""
-        return DEVICE_CLASS_TEMPERATURE
+        return SensorDeviceClass.TEMPERATURE
 
     @property
     def icon(self):
@@ -85,7 +84,7 @@ class MadokaSensor(Entity):
     @property
     def unit_of_measurement(self):
         """Return the unit of measurement."""
-        return TEMP_CELSIUS
+        return UnitOfTemperature.CELSIUS
 
     async def async_update(self):
         """Retrieve latest state."""

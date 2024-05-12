@@ -13,28 +13,15 @@ from pymadoka import (
 )
 from pymadoka.connection import ConnectionStatus
 
-from homeassistant.components.climate import ClimateEntity
+from homeassistant.components.climate import ClimateEntity, HVACMode, HVACAction, ClimateEntityFeature
 from homeassistant.components.climate.const import (
-    CURRENT_HVAC_COOL,
-    CURRENT_HVAC_DRY,
-    CURRENT_HVAC_FAN,
-    CURRENT_HVAC_HEAT,
-    CURRENT_HVAC_OFF,
     FAN_AUTO,
     FAN_HIGH,
     FAN_LOW,
     FAN_MEDIUM,
     FAN_OFF,
-    HVAC_MODE_AUTO,
-    HVAC_MODE_COOL,
-    HVAC_MODE_DRY,
-    HVAC_MODE_FAN_ONLY,
-    HVAC_MODE_HEAT,
-    HVAC_MODE_OFF,
-    SUPPORT_FAN_MODE,
-    SUPPORT_TARGET_TEMPERATURE,
 )
-from homeassistant.const import ATTR_TEMPERATURE, TEMP_CELSIUS
+from homeassistant.const import ATTR_TEMPERATURE, UnitOfTemperature
 
 from . import DOMAIN
 from .const import CONTROLLERS, MAX_TEMP, MIN_TEMP
@@ -42,20 +29,20 @@ from .const import CONTROLLERS, MAX_TEMP, MIN_TEMP
 _LOGGER = logging.getLogger(__name__)
 
 HA_MODE_TO_DAIKIN = {
-    HVAC_MODE_FAN_ONLY: OperationModeEnum.FAN,
-    HVAC_MODE_DRY: OperationModeEnum.DRY,
-    HVAC_MODE_COOL: OperationModeEnum.COOL,
-    HVAC_MODE_HEAT: OperationModeEnum.HEAT,
-    HVAC_MODE_AUTO: OperationModeEnum.AUTO,
-    HVAC_MODE_OFF: OperationModeEnum.AUTO,
+    HVACMode.FAN_ONLY: OperationModeEnum.FAN,
+    HVACMode.DRY: OperationModeEnum.DRY,
+    HVACMode.COOL: OperationModeEnum.COOL,
+    HVACMode.HEAT: OperationModeEnum.HEAT,
+    HVACMode.AUTO: OperationModeEnum.AUTO,
+    HVACMode.OFF: OperationModeEnum.AUTO,
 }
 
 DAIKIN_TO_HA_MODE = {
-    OperationModeEnum.FAN: HVAC_MODE_FAN_ONLY,
-    OperationModeEnum.DRY: HVAC_MODE_DRY,
-    OperationModeEnum.COOL: HVAC_MODE_COOL,
-    OperationModeEnum.HEAT: HVAC_MODE_HEAT,
-    OperationModeEnum.AUTO: HVAC_MODE_AUTO,
+    OperationModeEnum.FAN: HVACMode.FAN_ONLY,
+    OperationModeEnum.DRY: HVACMode.DRY,
+    OperationModeEnum.COOL: HVACMode.COOL,
+    OperationModeEnum.HEAT: HVACMode.HEAT,
+    OperationModeEnum.AUTO: HVACMode.AUTO,
 }
 
 HA_FAN_MODE_TO_DAIKIN = {
@@ -73,10 +60,10 @@ DAIKIN_TO_HA_FAN_MODE = {
 }
 
 DAIKIN_TO_HA_CURRENT_HVAC_MODE = {
-    OperationModeEnum.FAN: CURRENT_HVAC_FAN,
-    OperationModeEnum.DRY: CURRENT_HVAC_DRY,
-    OperationModeEnum.COOL: CURRENT_HVAC_COOL,
-    OperationModeEnum.HEAT: CURRENT_HVAC_HEAT,
+    OperationModeEnum.FAN: HVACAction.FAN,
+    OperationModeEnum.DRY: HVACAction.DRYING,
+    OperationModeEnum.COOL: HVACAction.COOLING,
+    OperationModeEnum.HEAT: HVACAction.HEATING,
 }
 
 DATA = "data"
@@ -85,19 +72,19 @@ DATA = "data"
 async def async_setup_entry(hass, entry, async_add_entities):
     """Set up Daikin climate based on config_entry."""
 
-    entities = []
+    if entry.entry_id in hass.data[DOMAIN]:
+        entities = []
+        for controller in hass.data[DOMAIN][entry.entry_id][CONTROLLERS].values():
+            try:
+                entity = DaikinMadokaClimate(controller)
+                entities.append(entity)
+                await entity.controller.update()
+            except ConnectionAbortedError:
+                pass
+            except ConnectionException:
+                pass
 
-    for controller in hass.data[DOMAIN][entry.entry_id][CONTROLLERS].values():
-        try:
-            entity = DaikinMadokaClimate(controller)
-            entities.append(entity)
-            await entity.controller.update()
-        except ConnectionAbortedError:
-            pass
-        except ConnectionException:
-            pass
-
-    async_add_entities(entities, update_before_add=True)
+        async_add_entities(entities, update_before_add=True)
 
 
 class DaikinMadokaClimate(ClimateEntity):
@@ -111,7 +98,7 @@ class DaikinMadokaClimate(ClimateEntity):
     @property
     def supported_features(self):
         """Return the list of supported features."""
-        return SUPPORT_TARGET_TEMPERATURE | SUPPORT_FAN_MODE
+        return ClimateEntityFeature.TARGET_TEMPERATURE | ClimateEntityFeature.FAN_MODE
 
     @property
     def available(self):
@@ -137,7 +124,7 @@ class DaikinMadokaClimate(ClimateEntity):
     @property
     def temperature_unit(self):
         """Return the unit of measurement which this thermostat uses."""
-        return TEMP_CELSIUS
+        return UnitOfTemperature.CELSIUS
 
     @property
     def current_temperature(self):
@@ -156,7 +143,7 @@ class DaikinMadokaClimate(ClimateEntity):
 
         value = None
 
-        if self.hvac_mode == HVAC_MODE_HEAT:
+        if self.hvac_mode == HVACMode.HEAT:
             value = self.controller.set_point.status.heating_set_point
         else:
             value = self.controller.set_point.status.cooling_set_point
@@ -214,7 +201,7 @@ class DaikinMadokaClimate(ClimateEntity):
             return None
 
         if self.controller.power_state.status.turn_on is False:
-            return HVAC_MODE_OFF
+            return HVACMode.OFF
 
         return DAIKIN_TO_HA_MODE.get(
             self.controller.operation_mode.status.operation_mode
@@ -233,7 +220,7 @@ class DaikinMadokaClimate(ClimateEntity):
             return None
 
         if self.controller.power_state.status.turn_on is False:
-            return CURRENT_HVAC_OFF
+            return HVACAction.OFF
 
         if (
             self.controller.operation_mode.status.operation_mode
@@ -241,9 +228,9 @@ class DaikinMadokaClimate(ClimateEntity):
         ):
             # pylint: disable=no-else-return
             if self.target_temperature >= self.current_temperature:
-                return CURRENT_HVAC_HEAT
+                return HVACAction.HEATING
             else:
-                return CURRENT_HVAC_COOL
+                return HVACAction.COOLING
         else:
             return DAIKIN_TO_HA_CURRENT_HVAC_MODE.get(
                 self.controller.operation_mode.status.operation_mode
@@ -252,12 +239,12 @@ class DaikinMadokaClimate(ClimateEntity):
     async def async_set_hvac_mode(self, hvac_mode):
         """Set HVAC mode."""
         try:
-            if hvac_mode != HVAC_MODE_OFF:
+            if hvac_mode != HVACMode.OFF:
                 await self.controller.operation_mode.update(
                     OperationModeStatus(HA_MODE_TO_DAIKIN.get(hvac_mode))
                 )
             await self.controller.power_state.update(
-                PowerStateStatus(hvac_mode != HVAC_MODE_OFF)
+                PowerStateStatus(hvac_mode != HVACMode.OFF)
             )
 
             self.async_schedule_update_ha_state()
@@ -278,7 +265,7 @@ class DaikinMadokaClimate(ClimateEntity):
         if self.controller.fan_speed.status is None:
             return None
         # pylint: disable=no-else-return
-        if self.hvac_mode == HVAC_MODE_HEAT:
+        if self.hvac_mode == HVACMode.HEAT:
             return DAIKIN_TO_HA_FAN_MODE.get(
                 self.controller.fan_speed.status.heating_fan_speed
             )
